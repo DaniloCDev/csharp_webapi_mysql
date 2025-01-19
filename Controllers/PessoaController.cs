@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Person.Model;
 
 namespace Person.Controller
 {
@@ -11,6 +12,13 @@ namespace Person.Controller
         public string MyFirstRoute()
         {
             return "Hello world";
+        }
+
+
+        [HttpPost]
+        public PersonModel ManipularModelPerson([FromBody] PersonModel p)
+        {
+            return p;
         }
     }
 }
