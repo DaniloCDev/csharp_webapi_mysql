@@ -8,9 +8,21 @@ POST {{csharp_webapi_mysql_HostAddress}}/Person
 Content-Type:application/json
 
 {
-    "codigo":12,
-    "nome": "Danilo lopes",
+    "nome": "Karma",
     "cidade":"belem",
     "idade": 20
 }
 
+###
+PUT  {{csharp_webapi_mysql_HostAddress}}/Person/4
+Content-Type:application/json
+
+{
+    "nome": "Karma Atualizado mano",
+    "cidade":"belem",
+    "idade": 16
+}
+
+###
+DELETE  {{csharp_webapi_mysql_HostAddress}}/Person/4
+Content-Type:application/json
