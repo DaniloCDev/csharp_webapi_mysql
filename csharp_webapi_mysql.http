@@ -1,0 +1,6 @@
+@csharp_webapi_mysql_HostAddress = http://localhost:5099
+
+GET {{csharp_webapi_mysql_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
