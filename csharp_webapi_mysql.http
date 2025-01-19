@@ -3,26 +3,31 @@
 GET {{csharp_webapi_mysql_HostAddress}}/Person
 Accept: application/json
 
+
+###
+GET {{csharp_webapi_mysql_HostAddress}}/Person/1
+Accept: application/json
+
 ###
 POST {{csharp_webapi_mysql_HostAddress}}/Person
 Content-Type:application/json
 
 {
-    "nome": "Karma",
+    "nome": "Teste validation",
     "cidade":"belem",
+    "cidade":"aa",
     "idade": 20
 }
 
 ###
-PUT  {{csharp_webapi_mysql_HostAddress}}/Person/4
+PUT  {{csharp_webapi_mysql_HostAddress}}/Person/1
 Content-Type:application/json
 
 {
     "nome": "Karma Atualizado mano",
-    "cidade":"belem",
-    "idade": 16
+    "idade": 16,
 }
 
 ###
-DELETE  {{csharp_webapi_mysql_HostAddress}}/Person/4
+DELETE  {{csharp_webapi_mysql_HostAddress}}/Person/10
 Content-Type:application/json

@@ -79,5 +79,18 @@ namespace Person.Repositories
             commandSql.Parameters.AddWithValue("@codigo", codigo);
             commandSql.ExecuteNonQuery();
         }
+
+
+        public bool ExistPerson (int codigo)
+        {
+            using var connection = new MySqlConnection(_stringConnection);
+            connection.Open();
+
+            using var commandSql = new MySqlCommand("SELECT COUNT(*) FROM pessoas WHERE codigo = @codigo", connection);
+            commandSql.Parameters.AddWithValue("@codigo", codigo);
+            int count = Convert.ToInt32(commandSql.ExecuteScalar());
+
+            return count > 0;
+        }
     }
 }

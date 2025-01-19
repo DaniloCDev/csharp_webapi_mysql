@@ -17,10 +17,26 @@ namespace Person.Controller
         }
 
         [HttpPost]
-        public PersonModel Register([FromBody] PersonModel p)
+        public IActionResult Register([FromBody] PersonModel p)
         {
+            if (string.IsNullOrEmpty(p.Nome))
+            {
+                return BadRequest(new { Message = "Nome é obrigatório." });
+            }
+
+            if (string.IsNullOrEmpty(p.Cidade))
+            {
+                return BadRequest(new { Message = "Cidade é obrigatória." });
+            }
+
+            if (p.Idade <= 0 || p.Idade > 120)
+            {
+                return BadRequest(new { Message = "Idade deve ser um valor maior que 0 e menor 120." });
+            }
+
             var obj = _personRepository.RegisterPerson(p);
-            return obj;
+            return Created(string.Empty, obj);
+
         }
 
         [HttpGet]
@@ -30,13 +46,34 @@ namespace Person.Controller
         }
 
         [HttpPut("{codigo}")]
-        public PersonModel Update(int codigo, [FromBody] PersonModel P)
+        public IActionResult Update(int codigo, [FromBody] PersonModel P)
         {
+
+            Console.WriteLine(P);
             P.Codigo = codigo;
+
+            if (!_personRepository.ExistPerson(codigo)) // Corrigido para verificar se a pessoa NÃO existe
+            {
+                return NotFound(new { Message = "Pessoa não existe" });
+            }
+            if (string.IsNullOrEmpty(P.Nome))
+            {
+                return BadRequest(new { Message = "Nome é obrigatório." });
+            }
+
+            if (string.IsNullOrEmpty(P.Cidade))
+            {
+                return BadRequest(new { Message = "Cidade é obrigatória." });
+            }
+
+            if (P.Idade <= 0 || P.Idade > 120)
+            {
+                return BadRequest(new { Message = "Idade deve ser um valor maior que 0 e menor 120." });
+            }
 
             _personRepository.UpdatePerson(P);
 
-            return P;
+            return Ok(P);
         }
 
         [HttpDelete("{codigo}")]
