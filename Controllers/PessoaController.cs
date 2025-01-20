@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Person.Model;
 using Person.Repositories;
+using Swashbuckle.AspNetCore.Annotations;
+
 
 namespace Person.Controller
 {
@@ -17,6 +19,9 @@ namespace Person.Controller
         }
 
         [HttpPost]
+        [SwaggerOperation(Summary = "Criando um registro de pessoas", Description = "Retorna os dados enviados com o codigo do dados registrado, não é nescessario enviar o campo codigo")]
+        [ProducesResponseType(typeof(IEnumerable<PersonModel>), 200)]
+        [ProducesResponseType(404)]
         public IActionResult Register([FromBody] PersonModel p)
         {
             if (string.IsNullOrEmpty(p.Nome))
@@ -40,16 +45,40 @@ namespace Person.Controller
         }
 
         [HttpGet]
+        [SwaggerOperation(Summary = "Obtém uma lista de todas as  pessoas", Description = "Retorna todos os registros de pessoas na base de dados.")]
+        [ProducesResponseType(typeof(IEnumerable<PersonModel>), 200)]
+        [ProducesResponseType(404)]
         public List<PersonModel> Selection()
         {
             return _personRepository.SelectPersons();
         }
 
+        [HttpGet("{codigo}")]
+        [SwaggerOperation(Summary = "Obtém dados de uma pessoa por id", Description = "Retorna todos os registros de pessoas na base de dados.")]
+        [ProducesResponseType(typeof(IEnumerable<PersonModel>), 200)]
+        [ProducesResponseType(404)]
+        public IActionResult FindPerson(int codigo)
+        {
+            var pessoa = _personRepository.FindPersonByID(codigo);
+
+            // Se a pessoa não for encontrada, retorna 404 (Not Found)
+            if (pessoa == null)
+            {
+                return NotFound();
+            }
+
+            // Caso contrário, retorna a pessoa encontrada como resposta
+            return Ok(pessoa);
+        }
+
+
         [HttpPut("{codigo}")]
+        [SwaggerOperation(Summary = "Atualiza os dados de algum registro", Description = "Retorna os dados atualizados no banco de dados")]
+        [ProducesResponseType(typeof(IEnumerable<PersonModel>), 200)]
+        [ProducesResponseType(404)]
         public IActionResult Update(int codigo, [FromBody] PersonModel P)
         {
 
-            Console.WriteLine(P);
             P.Codigo = codigo;
 
             if (!_personRepository.ExistPerson(codigo)) // Corrigido para verificar se a pessoa NÃO existe
@@ -77,8 +106,16 @@ namespace Person.Controller
         }
 
         [HttpDelete("{codigo}")]
+        [SwaggerOperation(Summary = "Deleta o registro refente ao id passado", Description = "Retorna status ok")]
+        [ProducesResponseType(typeof(IEnumerable<PersonModel>), 200)]
+        [ProducesResponseType(404)]
         public IActionResult Delete(int codigo)
         {
+
+            if (!_personRepository.ExistPerson(codigo)) // Corrigido para verificar se a pessoa NÃO existe
+            {
+                return NotFound(new { Message = "Pessoa não existe" });
+            }
 
             _personRepository.DeletePerson(codigo);
             return Ok();
