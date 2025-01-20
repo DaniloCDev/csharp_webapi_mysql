@@ -80,8 +80,36 @@ namespace Person.Repositories
             commandSql.ExecuteNonQuery();
         }
 
+        public PersonModel FindPersonByID(int codigo)
+        {
+            PersonModel pessoa = null;
 
-        public bool ExistPerson (int codigo)
+            using var connection = new MySqlConnection(_stringConnection);
+            connection.Open();
+
+            // Ajuste da consulta SQL para retornar os dados da pessoa
+            using var commandSql = new MySqlCommand("SELECT codigo, nome, cidade, idade FROM pessoas WHERE codigo = @codigo", connection);
+            commandSql.Parameters.AddWithValue("@codigo", codigo);
+
+            using var reader = commandSql.ExecuteReader();
+
+            // Se houver dados, preenche o objeto pessoa
+            if (reader.Read())
+            {
+                pessoa = new PersonModel
+                {
+                    Codigo = reader.GetInt32("codigo"),
+                    Nome = reader.GetString("nome"),
+                    Cidade = reader.GetString("cidade"),
+                    Idade = reader.GetInt32("idade")
+                };
+            }
+
+            return pessoa;
+        }
+
+
+        public bool ExistPerson(int codigo)
         {
             using var connection = new MySqlConnection(_stringConnection);
             connection.Open();
