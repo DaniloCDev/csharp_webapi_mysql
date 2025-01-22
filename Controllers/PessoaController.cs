@@ -45,12 +45,17 @@ namespace Person.Controller
         }
 
         [HttpGet]
-        [SwaggerOperation(Summary = "Obtém uma lista de todas as  pessoas", Description = "Retorna todos os registros de pessoas na base de dados.")]
+        [SwaggerOperation(Summary = "Obtém uma lista de todas as pessoas", Description = "Retorna todos os registros de pessoas na base de dados.")]
         [ProducesResponseType(typeof(IEnumerable<PersonModel>), 200)]
         [ProducesResponseType(404)]
-        public List<PersonModel> Selection()
+        public async Task<IActionResult> Selection()
         {
-            return _personRepository.SelectPersons();
+            var persons = await _personRepository.SelectPersons();
+
+            if (persons == null || !persons.Any())
+                return NotFound(); // Retorna 404 se a lista estiver vazia ou nula
+
+            return Ok(persons); // Retorna 200 com a lista de pessoas
         }
 
         [HttpGet("{codigo}")]
@@ -73,52 +78,64 @@ namespace Person.Controller
 
 
         [HttpPut("{codigo}")]
-        [SwaggerOperation(Summary = "Atualiza os dados de algum registro", Description = "Retorna os dados atualizados no banco de dados")]
-        [ProducesResponseType(typeof(IEnumerable<PersonModel>), 200)]
+        [SwaggerOperation(Summary = "Atualiza os dados de um registro", Description = "Atualiza os dados de uma pessoa existente e retorna os dados atualizados.")]
+        [ProducesResponseType(typeof(PersonModel), 200)]
         [ProducesResponseType(404)]
-        public IActionResult Update(int codigo, [FromBody] PersonModel P)
+        [ProducesResponseType(400)]
+        public async Task<IActionResult> Update(int codigo, [FromBody] PersonModel p)
         {
+            // Atribuir o código à entidade
+            p.Codigo = codigo;
 
-            P.Codigo = codigo;
-
-            if (!_personRepository.ExistPerson(codigo)) // Corrigido para verificar se a pessoa NÃO existe
+            // Verificar se o registro existe
+            if (!await _personRepository.ExistPerson(codigo)) 
             {
-                return NotFound(new { Message = "Pessoa não existe" });
+                return NotFound(new { Message = "Registro não encontrado." });
             }
-            if (string.IsNullOrEmpty(P.Nome))
+
+            // Validação de entrada
+            if (string.IsNullOrWhiteSpace(p.Nome))
             {
                 return BadRequest(new { Message = "Nome é obrigatório." });
             }
 
-            if (string.IsNullOrEmpty(P.Cidade))
+            if (string.IsNullOrWhiteSpace(p.Cidade))
             {
                 return BadRequest(new { Message = "Cidade é obrigatória." });
             }
 
-            if (P.Idade <= 0 || P.Idade > 120)
+            if (p.Idade <= 0 || p.Idade > 120)
             {
-                return BadRequest(new { Message = "Idade deve ser um valor maior que 0 e menor 120." });
+                return BadRequest(new { Message = "Idade deve ser maior que 0 e menor que 120." });
             }
 
-            _personRepository.UpdatePerson(P);
+            // Atualizar o registro
+            await _personRepository.UpdatePerson(p); 
 
-            return Ok(P);
+            // Retornar o registro atualizado
+            return Ok(new
+            {
+                Message = "Registro atualizado com sucesso.",
+                Person = p
+            });
         }
 
-        [HttpDelete("{codigo}")]
-        [SwaggerOperation(Summary = "Deleta o registro refente ao id passado", Description = "Retorna status ok")]
-        [ProducesResponseType(typeof(IEnumerable<PersonModel>), 200)]
-        [ProducesResponseType(404)]
-        public IActionResult Delete(int codigo)
-        {
 
-            if (!_personRepository.ExistPerson(codigo)) // Corrigido para verificar se a pessoa NÃO existe
+        [HttpDelete("{codigo}")]
+        [SwaggerOperation(Summary = "Remove um registro", Description = "Deleta o registro de uma pessoa com base no código informado.")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
+        public async Task<IActionResult> Delete(int codigo)
+        {
+            // Verifica se a pessoa existe
+            if (!await _personRepository.ExistPerson(codigo)) 
             {
                 return NotFound(new { Message = "Pessoa não existe" });
             }
 
-            _personRepository.DeletePerson(codigo);
-            return Ok();
+            await _personRepository.DeletePerson(codigo); 
+
+            return Ok(new { Message = "Pessoa deletada com sucesso." });
         }
     }
 

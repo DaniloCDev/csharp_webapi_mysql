@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using Person.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -6,15 +7,17 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 
 //string Connection
-var stringConnection = builder.Configuration.GetConnectionString("DefaultConnection") ??
-throw new InvalidOperationException("A string de conexão 'DefaultConnection' não foi encontrada.");
-
+builder.Services.AddScoped<PersonRepository>(); 
 // Adicionando Swagger à aplicação
 builder.Services.AddEndpointsApiExplorer(); //  identificar os endpoints da API
 builder.Services.AddSwaggerGen(); //  gerar a documentação Swagger
 
-// connection with Repository
-builder.Services.AddSingleton(new PersonRepository(stringConnection));
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseMySql(
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        new MySqlServerVersion(new Version(8, 0, 33))
+    )
+);
 
 var app = builder.Build();
 
