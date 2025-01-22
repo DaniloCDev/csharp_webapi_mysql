@@ -1,6 +1,8 @@
 # Person API
 
 A **Person API** é uma aplicação Web API desenvolvida para gerenciar informações de pessoas. Ela permite realizar operações CRUD (Criar, Ler, Atualizar e Deletar) sobre os dados de pessoas, utilizando um banco de dados MySQL como armazenamento, deixo bem aqui que todos os dados inseridos desde da criação ate a postagem deste projeto é apenas para aprender sobre .Net Core e tecnologias 
+OBS: Foi colocado e testado o entity framework, eu estava estudando como ficaria e gostei bastante!
+
 
 ## Informações do Projeto
 
